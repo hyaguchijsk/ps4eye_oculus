@@ -1,0 +1,62 @@
+<launch>
+  <!-- ps4eye -->
+  <arg name="load_driver" default="true" />
+  <arg name="device" default="/dev/video0" />
+  <arg name="parent_frame" value="/camera_link" />
+  <arg name="parent_transform" value="0 0 0 -1.570791 0 -1.570791" />
+  <include file="$(find ps4eye)/launch/stereo.launch">
+    <arg name="load_driver" value="$(arg load_driver)" />
+    <arg name="PUBLISH_TF" value="false" />
+    <arg name="DEVICE" value="$(arg device)" />
+    <!-- change your own calib files -->
+    <arg name="camera_info_file_right"
+         default="$(find ps4eye)/camera_info/right.yaml" />
+    <arg name="camera_info_file_left"
+         default="$(find ps4eye)/camera_info/left.yaml" />
+  </include>
+
+  <!-- crop image (640x400) to squared (400x400) -->
+  <node pkg="nodelet" type="nodelet" name="sq_right"
+        args="load image_proc/crop_decimate manager">
+    <param name="queue_size" type="int" value="10" />
+    <param name="x_offset" type="int" value="120" />
+    <param name="y_offset" type="int" value="0" />
+    <param name="width" type="int" value="400" />
+    <param name="height" type="int" value="400" />
+    <param name="camera_name" value="right_sq"/>
+    <remap from="camera/image_raw" to="/stereo/right/image_rect_color" />
+    <remap from="camera/camera_info" to="/stereo/right/camera_info" />
+    <remap from="camera_out/image_raw" to="/stereo/right_sq/image_raw" />
+    <remap from="camera_out/camera_info" to="/stereo/right_sq/camera_info" />
+  </node>
+  <node pkg="nodelet" type="nodelet" name="sq_left"
+        args="load image_proc/crop_decimate manager">
+    <param name="queue_size" type="int" value="10" />
+    <param name="x_offset" type="int" value="120" />
+    <param name="y_offset" type="int" value="0" />
+    <param name="width" type="int" value="400" />
+    <param name="height" type="int" value="400" />
+    <param name="camera_name" value="left_sq"/>
+    <remap from="camera/image_raw" to="/stereo/left/image_rect_color" />
+    <remap from="camera/camera_info" to="/stereo/left/camera_info" />
+    <remap from="camera_out/image_raw" to="/stereo/left_sq/image_raw" />
+    <remap from="camera_out/camera_info" to="/stereo/left_sq/camera_info" />
+  </node>
+
+    <!--Debugging purposes , enter the next line into the node tag-->
+    <!--launch-prefix="xterm -e gdb -args"-->
+	<node pkg="oculus_driver" type="oculus_node" name="oculus_node" />
+
+	<node pkg="oculus_viewer"
+        type="image_distort_viewer"
+        name="image_distort_viewer">
+		<param name="image_transport" value="raw"/>
+		<!-- adjust these params for your robot -->
+		<param name="display_offset_y" value="-40"/>
+		<param name="display_offset_x" value="70"/>
+		<remap from="/camera/right/image_raw"
+		       to="/stereo/right_sq/image_raw" />
+		<remap from="/camera/left/image_raw"
+		       to="/stereo/left_sq/image_raw" />
+	</node>
+</launch>
