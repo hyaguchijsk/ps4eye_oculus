@@ -1,0 +1,21 @@
+<package>
+  <name>ps4eye_oculus</name>
+  <version>0.0.0</version>
+  <description>
+    PS4Eye and Oculus Rift
+  </description>
+
+  <license>BSD</license>
+  <maintainer email="h-yaguchi@jsk.t.u-tokyo.ac.jp">
+  Hiroaki Yaguchi
+  </maintainer>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>ps4eye</run_depend>
+  <run_depend>oculus_driver</run_depend>
+  <run_depend>oculus_viewer</run_depend>
+
+  <export>
+  </export>
+</package>
